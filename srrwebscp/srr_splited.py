@@ -40,7 +40,7 @@ def srr_gsm_metadata(srr_split_final, df_drop_na):
     SRR_split_rows_count = srr_split_final.groupby('GSM').count().reset_index() #ok
     SRR_split_rows_count = SRR_split_rows_count.rename(columns={'SRR':'SRR_Count'})
 
-    #Creating the correct SRR (whitout 1 or 2 as strings) in a new df
+    #Creating the correct SRR (without 1 or 2 as strings) in a new df
     df = srr_split_final.groupby('GSM')['SRR'].apply(lambda x: "%s" % ','.join(x)).reset_index()
     
     df_merged = df_drop_na.merge(df, on='GSM').merge(SRR_split_rows_count, on='GSM')

@@ -164,7 +164,10 @@ def reorder_cols(df_almost_target_index):
 
 def add_srr_count_col(df_col_reorder, df_gsm_adr_srx_srr_final):
 
-    df1 = df_gsm_adr_srx_srr_final[['GSM', 'SRR_Count']].copy()
+    '''This function receives two dataframes and will return another df 
+    including new columns'''
+
+    df1 = df_gsm_adr_srx_srr_final.copy()
     df_final = pd.merge(df_col_reorder, df1, on='GSM')
     return df_final
 

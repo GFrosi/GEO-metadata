@@ -173,10 +173,10 @@ def main():
     logger.info("Reordering columns")
     df_col_reorder = gg.reorder_cols(df_almost_target_index)
     logger.info("Saving whole metadata datafrane. Length: " + str(len(df_col_reorder)) + " rows")
-    save_csv(df_col_reorder, 'log_57825gsm-2021.csv' )
+    save_csv(df_col_reorder, 'all_metadata-2021.csv' )
     logger.info("Adding the SRR/DRR/ERR count column")
     df_final = gg.add_srr_count_col(df_col_reorder, df_gsm_adr_srx_srr_final)
-    save_csv(df_final, 'log_GEO_metadata_2021_54874.csv')
+    save_csv(df_final, 'GEO_metadata_2021_'+str(len(df_final))+'.csv')
     logger.info("GEO Metadata saved")
     print('GEO metadata csv saved')
 
@@ -188,11 +188,11 @@ if __name__ == "__main__":
     )
 
     parser.add_argument('-f', '--file', action='store',
-                        help='The absolute path to the csv file with the metadata information obtained via XML wevscrapp script',
+                        help='The absolute path to the csv file with the metadata information obtained via XML webscraper script',
                         required=True)
     
     parser.add_argument('-s', '--srr', action='store',
-                        help='The absolute path to the csv file with the metadata SRX address, SRX and SRR information obtained via SRX/SRR XML wevscrapp script',
+                        help='The absolute path to the csv file with the metadata SRX address, SRX and SRR information obtained via SRX/SRR XML webscraper script',
                         required=True)
     
     parser.add_argument('-d', '--dict', action='store',

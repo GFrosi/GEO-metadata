@@ -16,7 +16,7 @@ A script to organize the GEO metadata scrapped by XML_scraper tool, including SR
 
 optional arguments:
   -h, --help            show this help message and exit
-  -f FILE, --file FILE  The absolute path to the csv file with the metadata information obtained via XML wevscrapp script
+  -f FILE, --file FILE  The absolute path to the csv file with the metadata information obtained via XML webscraper script
   -s SRR, --srr SRR     The absolute path to the csv file with the metadata SRX address, SRX and SRR information obtained via SRX/SRR
                         XML wevscrapp script
   -d DICT, --dict DICT  The absolute path to the csv file with the target regexs (JF file)
