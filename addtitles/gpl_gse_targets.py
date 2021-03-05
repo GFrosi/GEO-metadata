@@ -27,7 +27,7 @@ def ctl_treat_class(df_2):
     
     
     patterns = [r"\bcontrol\b",r"\binput\b",r"[-_]?(input)[_-]?", r"[-_]?(Control)[_-]?", 
-                r"\bctrl\b", r"[-_]?(ctrl)[_-]?", r"\bctl\b", r"[-_]?(ctl)[_-]?"]
+                r"\bctrl\b", r"[-_]?(ctrl)[_-]?", r"\bctl\b", r"[-_]?(ctl)[_-]?", r" [-_]?(IgG)[_-]?", r"\bIgG\b"]
 
     compiled_combined = re.compile('|'.join(x for x in patterns), re.IGNORECASE)
 
