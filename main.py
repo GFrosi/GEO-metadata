@@ -4,6 +4,9 @@ from os import path
 import sys
 import argparse
 import logging
+import numpy as np
+import multiprocessing
+from multiprocessing import  Pool
 from utils.loggerinitializer import *
 from distutils.dir_util import mkpath
 
@@ -121,6 +124,22 @@ def check_scraper_file():
         sys.exit(1)
 
 
+def parallelize_df(df_ctl_IP, regex_comp, target_CL):
+    
+    logger.info('parallelizing df')
+    num_cores = multiprocessing.cpu_count()
+    df_split = np.array_split(df_ctl_IP, num_cores)
+
+    func_param = [(i,regex_comp) for i in df_split]
+
+    pool = Pool(num_cores)
+    df = pd.concat(pool.starmap(target_CL, func_param))
+    pool.close()
+    pool.join()
+    
+    return df
+
+
 def main():
     
     logger.info("############### STARTING " + sys.argv[0] + " ###############")
@@ -164,14 +183,20 @@ def main():
     df_gse_gpl = gg.gpl_gse_title(df_Hs_chipseq_no_dup,df_gpl_title,df_gse_title )
     logger.info("GPL and GSE title columns added to master dataframe. Length: " + str(len(df_gse_gpl)) + " rows")
     logger.info("Creating new columns: Categories, Target and Confidence level (CL)")
-    df_ctl_IP = gg.ctl_treat_class(df_gse_gpl)
-    list_target, CL = gg.target_CL(df_ctl_IP, args.dict) #done
-    df_almost = gg.columns_target_CL(df_ctl_IP, list_target, CL)
+    
+    df_ctl_IP = gg.fill_na(df_gse_gpl) #just fill NA 
+    
+    dict_name = gg.load_dict(args.dict) #added to parallel
+
+    regex_comp = gg.list_regex_values(dict_name) #added to parallel
+
+    #df_almost = gg.columns_target_CL(df_ctl_IP, list_target, CL)
+    df_almost = parallelize_df(df_ctl_IP, regex_comp, gg.target_CL)
+    
     logger.info("Adjusting target and confidence level for INPUT samples")
-    df_almost_target = gg.correct_target(df_almost, 'Target-interest', 'INPUT')
-    df_almost_target_index = gg.correct_target(df_almost_target, 'CL-target', 'first')
+    
     logger.info("Reordering columns")
-    df_col_reorder = gg.reorder_cols(df_almost_target_index)
+    df_col_reorder = gg.reorder_cols(df_almost)
     logger.info("Saving whole metadata datafrane. Length: " + str(len(df_col_reorder)) + " rows")
     save_csv(df_col_reorder, 'all_metadata-2021.csv' )
     logger.info("Adding the SRR/DRR/ERR count column")
