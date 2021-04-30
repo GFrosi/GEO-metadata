@@ -173,7 +173,7 @@ def main():
     save_csv(srr_split_final, 'log_srr_to_mamouth.csv') #saving file to mammouth 
     logger.info("Splitted GSM/SRR csv file saved. Length: " + str(len(srr_split_final)) + " rows")
     df_gsm_adr_srx_srr_final = ss.srr_gsm_metadata(srr_split_final, df_drop_na)
-    save_csv(df_gsm_adr_srx_srr_final, 'log_gsm_adr_srx_srr_final_54886_2021.csv') #54886
+    save_csv(df_gsm_adr_srx_srr_final, 'log_gsm_adr_srx_srr_final.csv') #54886
     logger.info("gsm_adr_srx_srr csv file saved. Length: " + str(len(df_gsm_adr_srx_srr_final)) + " rows")
     
     #fourth - master final table including all informations 
@@ -198,7 +198,7 @@ def main():
     logger.info("Reordering columns")
     df_col_reorder = gg.reorder_cols(df_almost)
     logger.info("Saving whole metadata datafrane. Length: " + str(len(df_col_reorder)) + " rows")
-    save_csv(df_col_reorder, 'all_metadata-2021.csv' )
+    save_csv(df_col_reorder, 'all_metadata.csv' )
     logger.info("Adding the SRR/DRR/ERR count column")
     df_final = gg.add_srr_count_col(df_col_reorder, df_gsm_adr_srx_srr_final)
     save_csv(df_final, 'GEO_metadata_2021_'+str(len(df_final))+'.csv')

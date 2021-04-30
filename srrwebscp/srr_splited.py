@@ -3,7 +3,7 @@ import pandas as pd
 
 def merge_concat_df(df_srx_srr_drop, df_missed_recorver):
 
-    '''this function receives two dfs. Firts the second df (missed recover) will be merged with the first one to get all desired columns.
+    '''this function receives two dfs. First, the second df (missed recover) will be merged with the first one to get all desired columns.
     After, both dfs will be concatenated. The function will return the concatenated df.'''
 
     df_merge = pd.merge(df_srx_srr_drop, df_missed_recorver, on='SRX').drop('SRR_x', 1)
@@ -34,6 +34,7 @@ def split_SRR(df_drop_na):
 
 
 def srr_gsm_metadata(srr_split_final, df_drop_na):
+    
     '''This function receives the splited srr_gsm file. It will return a df with the SRR per GSM (no splited) and the SRR count per GSM'''
 
     #creating SRR_count column
@@ -44,7 +45,7 @@ def srr_gsm_metadata(srr_split_final, df_drop_na):
     df = srr_split_final.groupby('GSM')['SRR'].apply(lambda x: "%s" % ','.join(x)).reset_index()
     
     df_merged = df_drop_na.merge(df, on='GSM').merge(SRR_split_rows_count, on='GSM')
-    df_merged = df_merged.rename(columns = {'SRR_x':'SRR'}).drop('SRR_y', axis=1)
+    df_merged = df_merged.rename(columns = {'SRR_y':'SRR'}).drop('SRR_x', axis=1)
  
     return df_merged
 
