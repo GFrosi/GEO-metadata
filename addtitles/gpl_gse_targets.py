@@ -127,7 +127,7 @@ def add_srr_count_col(df_col_reorder, df_gsm_adr_srx_srr_final):
     the re-ordered columns'''
 
     df1 = df_gsm_adr_srx_srr_final.copy()
-    df_final = pd.merge(df_col_reorder, df1, on='GSM')
+    df_final = df_col_reorder.merge(df1, how='left', on='GSM')
     return df_final    
 
     
