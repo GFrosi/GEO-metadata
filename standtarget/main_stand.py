@@ -6,30 +6,25 @@ from tqdm import tqdm
 
 
 def read_csv(file_name):
+    '''Returns a dataframe'''
     
-    '''This function receives a csv file and it returns a dataframe'''
-    
-    df = pd.read_csv(file_name) 
-    
-    return df
+    return pd.read_csv(file_name) 
 
 
 def create_list(df, col_name: str):
+    '''Receives a dataframe and a column name.
+    Returns a list.'''
     
-    '''This function receives a dataframe and a column name. It will return a list.'''
-    
-    list_tgt = df[col_name].to_list()
-    return list_tgt
+    return df[col_name].to_list()
 
 
-def create_dict_regex(csv_file):
-    
-    '''This function receives a csv file with targets and regex for each target and returns a dic
-    with the targets as keys and the compiled regex as values'''
+def create_dict_regex(dict_regex_file):
+    '''Receives a csv file with targets and regex.
+    Returns a dict with the targets as keys and the
+    compiled regex as values'''
     
     dict_target = {}
-
-    file_n = open(csv_file, 'r')
+    file_n = open(dict_regex_file, 'r')
 
     for line in file_n:
 
@@ -41,23 +36,22 @@ def create_dict_regex(csv_file):
     return dict_target
 
 
-def stand_target(list_target: [], dict_regex: {}):
-
-    '''This function receives a list and dictionary with regex as its values. It will return a dictonary
-    and a list.'''
+def stand_target(list_target: list, dict_regex: dict):
+    '''Receives a list and dictionary with regex as values.
+    Returns a dictonary and a list.'''
     
     dict_stand = {}
     list_stand = []
 
     for tgt in tqdm(list_target):
-    
+        
         if 'GSM' in tgt:
 
             dict_stand[tgt] = 'None'
             list_stand.append('None')
 
         for k,v in dict_regex.items():
-
+            
             match = re.search(v, tgt)
 
             if match is not None:
@@ -69,18 +63,18 @@ def stand_target(list_target: [], dict_regex: {}):
     return dict_stand, list_stand
 
 
-def add_col(df, list_stand: []):
-    
-    '''This function receives a df and a list. It will return a df with the re-order columns 
-    including the new column and .'''
+def add_col(df, list_stand: list):
+    '''Receives a df and a list. Returns 
+    a re-ordered df including the new column.
+    '''
     
     df1 = df.copy()
-    
     df1['Target-GEO'] = list_stand
     
+    #categories column removed
     col = ['Release-Date', 'Organism', 'Library_strategy', 'GPL', 'GPL_title',
-       'GSE', 'GSE_title', 'GSM', 'GSM_title', 'chip_antib_catalog', 'Target',
-       'Cell_line', 'Cell_type', 'Source_cell', 'Categories',
+       'GSE', 'GSE_Title', 'GSM', 'GSM_title', 'chip_antib_catalog', 'Target',
+       'Cell_line', 'Cell_type', 'Source_cell',
        'Target-interest', 'CL-target', 'Target-GEO','Address', 'SRX', 'SRR', 'SRR_Count'
        ]
     
@@ -90,37 +84,26 @@ def add_col(df, list_stand: []):
 
 
 def save_csv(df, name_out):
-    
     '''receives a df and return a csv file'''
 
     df.to_csv(name_out, index=False)
 
 
-
 def main():
 
     print('Starting script')
-    
     df = read_csv(args.file)
     # print(df.head())
     list_tgt = create_list(df, 'Target-interest')
     dict_target = create_dict_regex(args.dict)
     # print(dict_target)
-    
     print('Generating list of stand targets')
-
     dict_stand, list_stand = stand_target(list_tgt, dict_target)
-
     print('list generated: ', len(list_stand), 'items')
-
     print('adding Target-GEO column to the dataframe')
-    
     df1 = add_col(df, list_stand)
-    
     print(df1.head())
-    
     print('Column added, DONE')
-
     save_csv(df1, args.output)
 
 if __name__ == "__main__":

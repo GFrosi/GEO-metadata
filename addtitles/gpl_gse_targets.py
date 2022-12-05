@@ -2,20 +2,20 @@ import pandas as pd
 import re
 import sys
 
-def gpl_gse_title(df_general, df_gpl, df_gse):
-    '''This function receives three dfs: the filtered df 
-    (Homo sapiens and ChiP-seq), gpl_title and gse_title. 
-    It will return a df with the GPL_Title and GSE_Title'''
+# def gpl_gse_title(df_general, df_gpl, df_gse):
+#     '''This function receives three dfs: the filtered df 
+#     (Homo sapiens and ChiP-seq), gpl_title and gse_title. 
+#     It will return a df with the GPL_Title and GSE_Title'''
 
-    df_gpl_nodup = df_gpl.drop_duplicates()
-    df_gse_nodup = df_gse.drop_duplicates()
+#     df_gpl_nodup = df_gpl.drop_duplicates()
+#     df_gse_nodup = df_gse.drop_duplicates()
 
-    df_1 = pd.merge(df_general, df_gpl_nodup, on='GPL')
-    df_2 = pd.merge(df_1, df_gse_nodup, on='GSE')
-    return df_2
+#     df_1 = pd.merge(df_general, df_gpl_nodup, on='GPL')
+#     df_2 = pd.merge(df_1, df_gse_nodup, on='GSE')
+#     return df_2
 
 
-def ctl_treat_class(df_2):
+def fill_na(df_2):
     '''This function receives a df 
     and return a copy with blank cells 
     filled with ----'''
@@ -53,15 +53,13 @@ def list_regex_values(dict_target):
     the next function'''
 
     all_regex = dict_target.values()
-
     all_regex_str = "|".join(all_regex)
-
     all_regex_compiled = re.compile(all_regex_str,re.IGNORECASE)
     
     return all_regex_compiled
 
 
-def target_CL(df_ctl_IP, file_name):
+def target_CL(df_ctl_IP, all_regex_compiled):
     '''This function receives the main df 
     (df_ctl_IP) and all_regex_compiled. The 
     code will a target in all_regex_compiled 
@@ -73,25 +71,34 @@ def target_CL(df_ctl_IP, file_name):
      
     gsm = df_ctl_IP['GSM'].tolist()
     length = len(gsm)
+    # print(f'length_gsm_list:{length}')
     
-    #put the df_lengh for range
+    #put the df_length for range
     list_target = list(range(length))
 
-    #put the df_lengh for range
+    #put the df_length for range
     CL = list(range(length))
 
+
     index = 0
-    for index, row in df_ctl_IP.iterrows():
+    for lindex, row in df_ctl_IP.iterrows():
         match_source  = re.search(all_regex_compiled, row["Source_cell"])
         match_title  = re.search(all_regex_compiled, row['Title'])
         match_target  = re.search(all_regex_compiled, row['Target'])
-
+        # print(row)
+        # print(f'index: {index}')
+        # sys.exit()
+        # print(match_source)
+        # print(match_title)
+        # print(match_target)
 
         if match_source:
+            # print()
             list_target[index] = match_source.group()
             CL[index] = 'third'
 
         if match_title:
+            print(f'last index tried: {index}')
             list_target[index] = match_title.group()
             CL[index] = 'second'
 
@@ -117,9 +124,9 @@ def reorder_cols(df_almost_target_index):
 
     df_almost_target_index.rename(columns={'Title':'GSM_title'}, inplace=True)
     #no categories
-    cols_new = ['Release-Date', 'Organism', 'Library_strategy', 'GPL','GPL_title', 'GSE', 'GSE_title', 'GSM','GSM_title', 'chip_antib_catalog', 'Target', 'Cell_line', 'Cell_type', 'Source_cell', 'Target-interest', 'CL-target']
-    df= df_almost_target_index[cols_new]
-    return df
+    cols_new = ['Release-Date', 'Organism', 'Library_strategy', 'GPL','GPL_title', 'GSE', 'GSE_Title', 'GSM','GSM_title', 'chip_antib_catalog', 'Target', 'Cell_line', 'Cell_type', 'Source_cell', 'Target-interest', 'CL-target']
+    
+    return df_almost_target_index[cols_new]
 
 
 def add_srr_count_col(df_col_reorder, df_gsm_adr_srx_srr_final):
@@ -127,13 +134,13 @@ def add_srr_count_col(df_col_reorder, df_gsm_adr_srx_srr_final):
     the re-ordered columns'''
 
     df1 = df_gsm_adr_srx_srr_final.copy()
-    df_final = df_col_reorder.merge(df1, how='left', on='GSM')
-    return df_final    
+
+    return df_col_reorder.merge(df1, how='left', on='GSM')    
 
     
 
 def columns_target_CL(df_ctl_IP, list1, list2):
-    '''This function receives to list and will 
+    '''This function receives two list and will 
     create new columns to return a df'''
 
     df1 = df_ctl_IP.copy()

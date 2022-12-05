@@ -13,6 +13,7 @@ def srr_web_scrapping(list_srx_address):
     for url in tqdm(list_srx_address):
         # url = srx
         response = requests.get(url)
+        sleep(1)
         data = response.text
         soup = BeautifulSoup(data, 'lxml')
 
