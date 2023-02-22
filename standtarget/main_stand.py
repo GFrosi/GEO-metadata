@@ -70,12 +70,14 @@ def add_col(df, list_stand: list):
     
     df1 = df.copy()
     df1['Target-GEO'] = list_stand
+
     
     #categories column removed
-    col = ['Release-Date', 'Organism', 'Library_strategy', 'GPL', 'GPL_title',
-       'GSE', 'GSE_Title', 'GSM', 'GSM_title', 'chip_antib_catalog', 'Target',
-       'Cell_line', 'Cell_type', 'Source_cell',
-       'Target-interest', 'CL-target', 'Target-GEO','Address', 'SRX', 'SRR', 'SRR_Count'
+    col = ['Release-date', 'Library-strategy', 'Organism', 'GPL', 'GPL-title',
+       'GSE', 'GSE-title', 'GSM', 'GSM_title', 'Cell', 'Disease', 'Sex_GEO',
+       'Source', 'ChIP-antibody-catalog', 'Target', 'Target-interest',
+       'Target-target', 'Target-catalog', 'Target-GEO' ,'CL-target', 'Address', 'SRX', 'SRR',
+       'SRR_Count'
        ]
     
     df1 = df1[col]
@@ -102,7 +104,7 @@ def main():
     print('list generated: ', len(list_stand), 'items')
     print('adding Target-GEO column to the dataframe')
     df1 = add_col(df, list_stand)
-    print(df1.head())
+    # print(df1.head())
     print('Column added, DONE')
     save_csv(df1, args.output)
 

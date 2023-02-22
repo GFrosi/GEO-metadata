@@ -2,17 +2,6 @@ import pandas as pd
 import re
 import sys
 
-# def gpl_gse_title(df_general, df_gpl, df_gse):
-#     '''This function receives three dfs: the filtered df 
-#     (Homo sapiens and ChiP-seq), gpl_title and gse_title. 
-#     It will return a df with the GPL_Title and GSE_Title'''
-
-#     df_gpl_nodup = df_gpl.drop_duplicates()
-#     df_gse_nodup = df_gse.drop_duplicates()
-
-#     df_1 = pd.merge(df_general, df_gpl_nodup, on='GPL')
-#     df_2 = pd.merge(df_1, df_gse_nodup, on='GSE')
-#     return df_2
 
 
 def fill_na(df_2):
@@ -59,6 +48,20 @@ def list_regex_values(dict_target):
     return all_regex_compiled
 
 
+
+def columns_target_CL(df_ctl_IP, list_target, CL, list_target_target, list_target_catalog):
+    '''This function receives two list and will 
+    create new columns to return a df'''
+
+    df1 = df_ctl_IP.copy()
+    df1['Target-interest'] = list_target
+    df1['CL-target'] = CL
+    df1['Target-target'] = list_target_target
+    df1['Target-catalog'] = list_target_catalog
+    
+    return df1
+
+
 def target_CL(df_ctl_IP, all_regex_compiled):
     '''This function receives the main df 
     (df_ctl_IP) and all_regex_compiled. The 
@@ -73,58 +76,74 @@ def target_CL(df_ctl_IP, all_regex_compiled):
     length = len(gsm)
     # print(f'length_gsm_list:{length}')
     
-    #put the df_length for range
+    #put the df_length for range #create two more columns (Target_target and Target_catalog)
     list_target = list(range(length))
+    list_target_target = list(range(length))
+    list_target_catalog = list(range(length))
 
     #put the df_length for range
     CL = list(range(length))
 
-
     index = 0
     for lindex, row in df_ctl_IP.iterrows():
-        match_source  = re.search(all_regex_compiled, row["Source_cell"])
-        match_title  = re.search(all_regex_compiled, row['Title'])
+        match_source  = re.search(all_regex_compiled, row["Source"]) #updating col names
+        match_title  = re.search(all_regex_compiled, row['GSM_title'])
+        match_chip_ant  = re.search(all_regex_compiled, row['ChIP-antibody-catalog'])
         match_target  = re.search(all_regex_compiled, row['Target'])
-        # print(row)
-        # print(f'index: {index}')
-        # sys.exit()
-        # print(match_source)
-        # print(match_title)
-        # print(match_target)
 
         if match_source:
-            # print()
             list_target[index] = match_source.group()
-            CL[index] = 'third'
+            CL[index] = 'fifth'
 
         if match_title:
-            print(f'last index tried: {index}')
+            # print(f'last index tried: {index}')
             list_target[index] = match_title.group()
-            CL[index] = 'second'
+            CL[index] = 'fourth'
 
         if match_target:
             list_target[index] = match_target.group()
-            CL[index] = 'first'
+            # print(row['GSM'])
+            # print('target',list_target[index])
+            CL[index] = 'third'
+
+        if match_chip_ant:
+            list_target[index] = match_chip_ant.group()
+            # print(row['GSM'])
+            # print('antibody',list_target[index])
+            CL[index] = 'second'        
         
+        if match_target and match_chip_ant: 
+            list_target[index] = match_target.group() + ':::' + match_chip_ant.group() #fixed!
+            list_target_target[index] =  match_target.group()
+            list_target_catalog[index] =  match_chip_ant.group()
+            # print(row['GSM'])
+            # print('target',list_target[index])
+            CL[index] = 'first'
+        else:
+            list_target_target[index] =  '----'
+            list_target_catalog[index] =  '----'
+
         if isinstance(CL[index], int):
             CL[index] = gsm[index]
             list_target[index] = gsm[index]
 
         index += 1
               
-    return columns_target_CL(df_ctl_IP, list_target, CL)
+    # columns_target_CL(df_ctl_IP, list_target, CL, list_target_target, list_target_catalog)
+    return columns_target_CL(df_ctl_IP, list_target, CL, list_target_target, list_target_catalog)
 
 
 def reorder_cols(df_almost_target_index):
-    '''This function receives the df (including 
-    GPL and GSE title, target-interest and CL) 
-    columns to reorder them. It will return a df 
-    with the Title column renamed to GSM_Title and
-    the reordered columns'''
+    '''Receives a df including GPL and GSE title
+    ,target-interest and CL columns. Return a df
+    with reordered columns'''
 
-    df_almost_target_index.rename(columns={'Title':'GSM_title'}, inplace=True)
     #no categories
-    cols_new = ['Release-Date', 'Organism', 'Library_strategy', 'GPL','GPL_title', 'GSE', 'GSE_Title', 'GSM','GSM_title', 'chip_antib_catalog', 'Target', 'Cell_line', 'Cell_type', 'Source_cell', 'Target-interest', 'CL-target']
+    cols_new = ['Release-date', 'Library-strategy','Organism', 
+                'GPL', 'GPL-title', 'GSE','GSE-title', 'GSM','GSM_title',
+                'Cell', 'Disease', 'Sex_GEO','Source','ChIP-antibody-catalog',
+                'Target', 'Target-interest', 'Target-target','Target-catalog','CL-target',
+                ]
     
     return df_almost_target_index[cols_new]
 
@@ -137,17 +156,7 @@ def add_srr_count_col(df_col_reorder, df_gsm_adr_srx_srr_final):
 
     return df_col_reorder.merge(df1, how='left', on='GSM')    
 
-    
 
-def columns_target_CL(df_ctl_IP, list1, list2):
-    '''This function receives two list and will 
-    create new columns to return a df'''
-
-    df1 = df_ctl_IP.copy()
-    df1['Target-interest'] = list1
-    df1['CL-target'] = list2
-    
-    return df1
 
 
 
