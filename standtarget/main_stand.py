@@ -42,24 +42,35 @@ def stand_target(list_target: list, dict_regex: dict):
     
     dict_stand = {}
     list_stand = []
-
+    # cnt = 0
     for tgt in tqdm(list_target):
+        # print('target:',tgt)
         
         if 'GSM' in tgt:
 
             dict_stand[tgt] = 'None'
             list_stand.append('None')
-
+            
+            continue
+        
         for k,v in dict_regex.items():
             
             match = re.search(v, tgt)
-
+        
             if match is not None:
 
                 dict_stand[match.group()] = k
                 list_stand.append(k)
+
+
+                # if len(list_stand) > cnt + 1:
+                #     print("problem:", list_stand[cnt - 1 ], list_stand[cnt] )
+                #     print("count:", cnt)
+                #     print("match:", match.group())
+                #     sys.exit()
+                
                 break
-    
+      
     return dict_stand, list_stand
 
 
@@ -96,12 +107,16 @@ def main():
     print('Starting script')
     df = read_csv(args.file)
     # print(df.head())
+    print('Generating list_tartget...')
     list_tgt = create_list(df, 'Target-interest')
+    print('List_target has:', len(list_tgt)) #so far so good
     dict_target = create_dict_regex(args.dict)
     # print(dict_target)
     print('Generating list of stand targets')
     dict_stand, list_stand = stand_target(list_tgt, dict_target)
     print('list generated: ', len(list_stand), 'items')
+    # sys.exit()
+    
     print('adding Target-GEO column to the dataframe')
     df1 = add_col(df, list_stand)
     # print(df1.head())
